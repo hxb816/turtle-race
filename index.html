@@ -158,6 +158,21 @@
   .winline.you{background:#20242e;color:#fff}
   .winline .k{margin-left:auto;font-size:11px;color:#9a9384}
   .winline.you .k{color:#b9c0cc}
+
+  /* ---------- welcome screen ---------- */
+  .welcome-emoji{font-size:44px;line-height:1;margin-top:4px;text-align:center}
+  .welcome-title{font-size:28px;text-align:center;margin:8px 0 2px}
+  .welcome-sub{text-align:center;color:#9a9384;font-size:12px;letter-spacing:2.4px;text-transform:uppercase;margin:0 0 16px}
+  .welcome-lead{text-align:center;font-size:13.5px;color:#6d7484;line-height:1.7;margin:0 0 20px}
+  .langrow{display:flex;gap:10px;margin-bottom:18px}
+  .langbtn{
+    flex:1;padding:15px 0 13px;border-radius:14px;border:1px solid #e3dccb;background:#fff;cursor:pointer;
+    font-size:16px;font-weight:700;color:#4b5160;transition:.15s;font-family:inherit
+  }
+  .langbtn small{display:block;font-size:11px;font-weight:400;color:#a9a294;margin-top:3px}
+  .langbtn:hover{transform:translateY(-2px);border-color:#d6cdb8}
+  .langbtn.on{background:#20242e;border-color:#20242e;color:#fff;box-shadow:0 12px 24px -14px #20242e}
+  .langbtn.on small{color:#b9c0cc}
   @media (max-width:860px){
     .col{min-height:150px;padding:5px 1px}
     .turtle{width:30px;height:22px}
@@ -203,8 +218,23 @@
   </div>
 </div>
 
+<!-- 首界面 -->
+<div class="veil show" id="welcomeVeil">
+  <div class="modal" style="max-width:400px">
+    <div class="welcome-emoji">🐢</div>
+    <h2 class="welcome-title" data-i18n="welcome.title">跑跑龟</h2>
+    <p class="welcome-sub">The Great Turtle Race</p>
+    <p class="welcome-lead" data-i18n="welcome.lead">五只乌龟赛跑，先把自己颜色的龟送到终点就赢。打牌、叠罗汉、卡位——选好语言，开始吧。</p>
+    <div class="langrow">
+      <button class="langbtn" id="langZh" type="button">中文<small>简体中文界面</small></button>
+      <button class="langbtn" id="langEn" type="button">English<small>Play in English</small></button>
+    </div>
+    <button class="btn primary" id="btnWelcomeStart" style="width:100%;padding:13px;font-size:15px" data-i18n="welcome.start">进入游戏</button>
+  </div>
+</div>
+
 <!-- 开局设置 -->
-<div class="veil show" id="setupVeil">
+<div class="veil" id="setupVeil">
   <div class="modal">
     <h2 data-i18n="setup.title">🐢 跑跑龟</h2>
     <p data-i18n-html="setup.intro">五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。</p>
@@ -304,6 +334,9 @@ var I18N = {
     'col.finish': '终点',
     'pl.cards': '{0} 张',
     'name.default': '玩家',
+    'welcome.title': '跑跑龟',
+    'welcome.lead': '五只乌龟赛跑，先把自己颜色的龟送到终点就赢。打牌、叠罗汉、卡位——选好语言，开始吧。',
+    'welcome.start': '进入游戏',
     'setup.title': '🐢 跑跑龟',
     'setup.intro': '五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。',
     'setup.name': '你的名字',
@@ -375,6 +408,9 @@ var I18N = {
     'col.finish': 'Finish',
     'pl.cards': '{0} cards',
     'name.default': 'You',
+    'welcome.title': 'Turtle Race',
+    'welcome.lead': 'Five turtles race — get the turtle of your colour to the finish first. Play cards, stack up, block your rivals. Pick a language and dive in.',
+    'welcome.start': 'Play',
     'setup.title': '🐢 Turtle Race',
     'setup.intro': 'Five turtles start from the same square. Get <b>the turtle of your colour</b> to the finish first to win. Play cards, stack turtles, block rivals — off you go.',
     'setup.name': 'Your name',
@@ -694,6 +730,8 @@ function applyLang(){
   for(var j=0;j<hnodes.length;j++) hnodes[j].innerHTML = T(hnodes[j].getAttribute('data-i18n-html'));
   $('nameInput').placeholder = T('setup.namePh');
   $('btnLang').textContent = T('btn.lang');
+  $('langZh').classList.toggle('on', LANG === 'zh');   // 首界面语言选中态
+  $('langEn').classList.toggle('on', LANG === 'en');
   var nv = $('nameInput').value.trim();
   if(!nv || nv === I18N.zh['name.default'] || nv === I18N.en['name.default']) $('nameInput').value = T('name.default');
 }
@@ -1004,6 +1042,21 @@ function showEnd(){
 (function init(){
   LANG = detectLang();
   applyLang();
+
+  /* ---- 首界面 ---- */
+  $('langZh').onclick = function(){ setLang('zh'); };
+  $('langEn').onclick = function(){ setLang('en'); };
+  $('btnWelcomeStart').onclick = function(){
+    $('welcomeVeil').classList.remove('show');
+    $('setupVeil').classList.add('show');
+    $('nameInput').focus();
+  };
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && $('welcomeVeil').classList.contains('show')){
+      e.preventDefault();
+      $('btnWelcomeStart').click();
+    }
+  });
 
   $('btnLang').onclick = function(){
     setLang(LANG === 'zh' ? 'en' : 'zh');
