@@ -1,0 +1,5 @@
+.DS_Store
+._*
+*.genie
+.workbuddy/
+node_modules/

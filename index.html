@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f6f2e8">
+<title>跑跑龟 · The Great Turtle Race</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:radial-gradient(1100px 520px at 8% -12%,#fffdf6,#f7f3e9 55%,#f1ebdf);
+    color:#20242e;min-height:100vh;-webkit-font-smoothing:antialiased;
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:18px 16px 44px}
+
+  /* ---------- top bar ---------- */
+  header.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+  .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .brand h1{margin:0;font-size:21px;letter-spacing:.5px}
+  .brand small{font-size:11px;color:#9a9384;letter-spacing:1.6px;text-transform:uppercase}
+  .acts{display:flex;gap:8px}
+  .btn{
+    appearance:none;border:1px solid #e3dccb;background:#fff;color:#3a3f4b;
+    padding:8px 14px;border-radius:10px;font-size:13px;cursor:pointer;
+    box-shadow:0 1px 0 rgba(0,0,0,.03);transition:.15s;font-family:inherit
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px -10px rgba(40,30,10,.6);border-color:#d6cdb8}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:#20242e;border-color:#20242e;color:#fff}
+  .btn.primary:hover{background:#2d3341}
+
+  /* ---------- board ---------- */
+  .board{
+    background:linear-gradient(180deg,#fffdf7,#faf5ea);border:1px solid #e9e2d3;border-radius:20px;
+    padding:12px 12px 10px;box-shadow:0 22px 44px -34px rgba(70,50,15,.65),inset 0 1px 0 #fff
+  }
+  .track{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+  .colwrap{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .col{
+    position:relative;display:flex;flex-direction:column-reverse;align-items:center;justify-content:flex-start;
+    gap:3px;min-height:184px;border-radius:12px;background:#f8f4ea;border:1px dashed #e8e0cf;padding:7px 2px;
+    overflow:hidden
+  }
+  .col.start{background:linear-gradient(180deg,#fdf5e6,#fbeeda);border:1px solid #efdab7}
+  .col.finish{background:linear-gradient(180deg,#e9f7ee,#ddf1e4);border:1px solid #c3e5cd}
+  .colnum{font-size:10px;color:#a8a193;text-align:center;letter-spacing:.5px}
+  .col.start .colnum,.colnum.hot{color:#8c6a2f;font-weight:600}
+  .colnum.hot{color:#2f7a49}
+
+  .turtle{width:38px;height:28px;flex:0 0 auto;filter:drop-shadow(0 2px 2px rgba(30,20,0,.22));will-change:transform}
+  .turtle svg{width:100%;height:100%;display:block;overflow:visible}
+  .turtle.moved{animation:pop .72s cubic-bezier(.3,1.6,.4,1)}
+  @keyframes pop{
+    0%{transform:scale(1)}
+    28%{transform:scale(1.3) translateY(-5px)}
+    60%{transform:scale(1.05) translateY(0)}
+    100%{transform:scale(1)}
+  }
+
+  /* ---------- players ---------- */
+  .players{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pl{
+    display:flex;align-items:center;gap:8px;padding:7px 12px 7px 8px;border-radius:999px;background:#fff;
+    border:1px solid #ebe4d5;font-size:13px;color:#4b5160;transition:.18s
+  }
+  .pl .dot{width:18px;height:18px;border-radius:50%;background:var(--c,#ccc);box-shadow:inset 0 -2px 0 rgba(0,0,0,.15);flex:0 0 auto}
+  .pl .dot.q{background:#e8e3d7;color:#9b9484;font-size:10px;display:grid;place-items:center;box-shadow:none}
+  .pl .nm{font-weight:600;color:#2a2f3a}
+  .pl .cnt{font-size:11px;color:#9a9384}
+  .pl.on{background:#20242e;border-color:#20242e;box-shadow:0 10px 22px -16px #20242e}
+  .pl.on .nm{color:#fff}
+  .pl.on .cnt{color:#b9c0cc}
+
+  /* ---------- bottom area ---------- */
+  .bottom{display:grid;grid-template-columns:1fr 320px;gap:14px;margin-top:14px}
+  @media (max-width:860px){ .bottom{grid-template-columns:1fr} }
+
+  .panel{background:#fff;border:1px solid #e9e2d3;border-radius:18px;padding:14px;box-shadow:0 18px 38px -34px rgba(70,50,15,.6)}
+  .panel h3{margin:0;font-size:13px;color:#8d8778;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+
+  .playhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .turn{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#20242e}
+  .turn .pulse{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+  .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tag{font-size:12px;color:#6d7484;background:#f7f4ec;border:1px solid #eee7d8;border-radius:999px;padding:5px 11px;display:flex;align-items:center;gap:6px}
+  .tag b{color:#2a2f3a}
+  .tag .dot{width:12px;height:12px;border-radius:50%;background:var(--c,#ccc)}
+
+  .hand{display:flex;gap:10px;overflow-x:auto;padding:10px 2px 6px;scrollbar-width:thin}
+  .hand::-webkit-scrollbar{height:6px}
+  .hand::-webkit-scrollbar-thumb{background:#e2dac9;border-radius:9px}
+
+  .card{
+    position:relative;flex:0 0 auto;width:80px;height:114px;border-radius:13px;background:#fff;
+    border:1px solid #e6dfd0;box-shadow:0 3px 0 #f1ecdf,0 10px 20px -16px rgba(50,35,10,.8);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    cursor:pointer;font-family:inherit;transition:transform .14s ease,box-shadow .14s ease,opacity .2s;overflow:hidden;
+    padding:12px 6px 8px
+  }
+  .card .cbar{position:absolute;top:0;left:0;right:0;height:9px;background:var(--c,#ccc)}
+  .card .ctop{font-size:10px;color:#9a9384;letter-spacing:.5px}
+  .card .cbig{font-size:27px;font-weight:800;line-height:1.05;color:var(--cc,var(--c,#20242e));letter-spacing:-.5px}
+  .card .cfoot{font-size:10px;color:#a9a294;margin-top:2px;text-align:center;line-height:1.25}
+  .card:hover:not(:disabled){transform:translateY(-7px);box-shadow:0 3px 0 #f1ecdf,0 18px 26px -18px rgba(50,35,10,.95)}
+  .card:active:not(:disabled){transform:translateY(-2px)}
+  .card:disabled{cursor:default;opacity:.45;filter:saturate(.6)}
+  .card.rainbow .cbar{background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#3b82f6,#a855f7)}
+  .card.rainbow .cbig{background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#3b82f6,#a855f7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .card.arrow .cbig{color:#475569;font-size:24px}
+
+  .logbox{height:288px;overflow-y:auto;margin-top:10px;padding-right:6px;scrollbar-width:thin;display:flex;flex-direction:column;gap:7px}
+  .logbox::-webkit-scrollbar{width:5px}
+  .logbox::-webkit-scrollbar-thumb{background:#e2dac9;border-radius:9px}
+  .ln{font-size:12.5px;line-height:1.5;color:#5a6070;padding:6px 9px;border-radius:9px;background:#faf7f0;border-left:2px solid #e6dfd0}
+  .ln.me{background:#f0f7f2;border-left-color:#39a05f;color:#2f5c40}
+  .ln.ai{background:#f7f7fa;border-left-color:#c3c8d4}
+  .ln.sys{background:#fdf6e9;border-left-color:#e0b266;color:#7d5c1e}
+  .ln.win{background:#eef9f1;border-left-color:#22c55e;color:#1c6b3a;font-weight:600}
+  .ln.turn{background:transparent;border-left-color:transparent;color:#a9a294;font-size:11.5px;padding:2px 0 0}
+
+  /* ---------- overlays ---------- */
+  .veil{position:fixed;inset:0;background:rgba(32,36,46,.45);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .veil.show{display:flex}
+  .modal{background:#fffdf8;border-radius:22px;padding:24px;max-width:520px;width:100%;box-shadow:0 40px 80px -30px rgba(20,15,5,.6);max-height:88vh;overflow:auto;animation:rise .22s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+  .modal h2{margin:0 0 6px;font-size:20px}
+  .modal p{margin:0 0 14px;color:#6d7484;font-size:13.5px;line-height:1.65}
+  .modal .row{display:flex;gap:10px;flex-wrap:wrap}
+  .modal input[type=text]{
+    width:100%;padding:11px 13px;border-radius:11px;border:1px solid #e3dccb;background:#fff;font-size:14px;
+    font-family:inherit;outline:none;transition:.15s
+  }
+  .modal input[type=text]:focus{border-color:#20242e;box-shadow:0 0 0 3px rgba(32,36,46,.08)}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12px;color:#8d8778;margin-bottom:7px;letter-spacing:.5px}
+  .segs{display:flex;gap:8px;flex-wrap:wrap}
+  .seg{
+    flex:1;min-width:64px;padding:11px 0;border-radius:11px;border:1px solid #e3dccb;background:#fff;cursor:pointer;
+    font-size:14px;font-weight:600;color:#4b5160;transition:.15s;font-family:inherit
+  }
+  .seg small{display:block;font-size:10px;font-weight:400;color:#a9a294;margin-top:2px}
+  .seg.on{background:#20242e;border-color:#20242e;color:#fff}
+  .seg.on small{color:#b9c0cc}
+  .pick{
+    display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:12px;border:1px solid #e6dfd0;background:#fff;
+    cursor:pointer;font-size:14px;font-weight:600;color:#3a3f4b;transition:.15s;font-family:inherit
+  }
+  .pick:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 10px 18px -14px var(--c)}
+  .pick .pdot{width:20px;height:20px;border-radius:50%;background:var(--c);box-shadow:inset 0 -2px 0 rgba(0,0,0,.18)}
+  .rules{font-size:13.5px;color:#4b5160;line-height:1.75;padding-left:20px;margin:0}
+  .rules li{margin-bottom:7px}
+  .rules b{color:#20242e}
+  .winline{display:flex;align-items:center;gap:9px;font-size:14px;padding:9px 12px;border-radius:11px;background:#f9f6ee;margin-bottom:7px}
+  .winline .dot{width:16px;height:16px;border-radius:50%;background:var(--c);flex:0 0 auto}
+  .winline.you{background:#20242e;color:#fff}
+  .winline .k{margin-left:auto;font-size:11px;color:#9a9384}
+  .winline.you .k{color:#b9c0cc}
+  @media (max-width:860px){
+    .col{min-height:150px;padding:5px 1px}
+    .turtle{width:30px;height:22px}
+    .card{width:70px;height:102px}
+    .card .cbig{font-size:23px}
+    .logbox{height:180px}
+    .wrap{padding:12px 10px 30px}
+    .brand h1{font-size:18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>🐢 跑跑龟</h1>
+      <small>The Great Turtle Race</small>
+    </div>
+    <div class="acts">
+      <button class="btn" id="btnRules">游戏规则</button>
+      <button class="btn" id="btnNew">重新开局</button>
+    </div>
+  </header>
+
+  <section class="board">
+    <div class="track" id="track"></div>
+    <div class="players" id="players"></div>
+  </section>
+
+  <div class="bottom">
+    <section class="panel">
+      <div class="playhead">
+        <div class="turn" id="turnText"><span class="pulse"></span><span>准备开始</span></div>
+        <div class="meta" id="metaBox"></div>
+      </div>
+      <div class="hand" id="hand"></div>
+    </section>
+    <section class="panel">
+      <h3>对局记录</h3>
+      <div class="logbox" id="logBox"></div>
+    </section>
+  </div>
+</div>
+
+<!-- 开局设置 -->
+<div class="veil show" id="setupVeil">
+  <div class="modal">
+    <h2>🐢 跑跑龟</h2>
+    <p>五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。</p>
+    <div class="field">
+      <label>你的名字</label>
+      <input type="text" id="nameInput" maxlength="12" placeholder="请输入名字" value="玩家">
+    </div>
+    <div class="field">
+      <label>玩家人数（你 + 电脑）</label>
+      <div class="segs" id="segs">
+        <button class="seg" data-n="2">2<small>你 + 1 AI</small></button>
+        <button class="seg" data-n="3">3<small>你 + 2 AI</small></button>
+        <button class="seg on" data-n="4">4<small>你 + 3 AI</small></button>
+        <button class="seg" data-n="5">5<small>你 + 4 AI</small></button>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="btnStart" style="flex:1;padding:12px">开始游戏</button>
+      <button class="btn" id="btnRules2" style="padding:12px">看规则</button>
+    </div>
+  </div>
+</div>
+
+<!-- 选颜色 -->
+<div class="veil" id="pickVeil">
+  <div class="modal" style="max-width:430px">
+    <h2 id="pickTitle">选择乌龟</h2>
+    <p id="pickSub" style="margin-bottom:16px"></p>
+    <div class="row" id="pickOptions"></div>
+  </div>
+</div>
+
+<!-- 规则 -->
+<div class="veil" id="rulesVeil">
+  <div class="modal">
+    <h2>怎么玩</h2>
+    <p>先到终点的乌龟获胜，你要做的是把「自己的龟」送过去。</p>
+    <ol class="rules">
+      <li>棋盘共 10 格，从起点（第 0 格）到终点（第 9 格）。</li>
+      <li>每回合打出一张手牌，让<b>卡牌指定颜色</b>的乌龟前进或后退：<b>+1 / +2 / −1</b>。</li>
+      <li>乌龟会<b>叠罗汉</b>：移动位于下方（垫底）的龟时，它背上的龟会被一起带走；后退到起点就无法再退。</li>
+      <li><b>彩虹卡</b>（彩虹 +1 / 彩虹 −1）：由你指定任意一只龟移动，是最强的调度牌。</li>
+      <li><b>箭头卡</b>：全场<b>最落后</b>的那只龟前进 1 格；<b>双箭头</b>前进 2 格。若有多只并列最落后，由你选一只。</li>
+      <li>打出牌后补一张，手牌始终保持 5 张；牌堆抽完会把弃牌重新洗入。</li>
+      <li>你只知道自己的颜色，电脑的颜色是隐藏的——看谁在帮哪只龟，就能猜出来。</li>
+    </ol>
+    <div class="row" style="margin-top:18px">
+      <button class="btn primary" id="btnRulesClose" style="flex:1;padding:11px">明白了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结算 -->
+<div class="veil" id="endVeil">
+  <div class="modal">
+    <h2 id="endTitle">游戏结束</h2>
+    <p id="endSub"></p>
+    <div id="endList" style="margin-bottom:18px"></div>
+    <div class="row">
+      <button class="btn primary" id="btnAgain" style="flex:1;padding:11px">再来一局</button>
+      <button class="btn" id="btnChange" style="padding:11px">换人数</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===ENGINE_START=== */
+var COLORS = ['red','blue','green','yellow','purple'];
+var COLOR_META = {
+  red:    {zh:'红', hex:'#ef4444', deep:'#dc2626'},
+  blue:   {zh:'蓝', hex:'#3b82f6', deep:'#2563eb'},
+  green:  {zh:'绿', hex:'#22c55e', deep:'#16a34a'},
+  yellow: {zh:'黄', hex:'#eab308', deep:'#b8860b'},
+  purple: {zh:'紫', hex:'#a855f7', deep:'#9333ea'}
+};
+var TRACK = 10;
+var START_COL = 0;
+var GOAL_COL = TRACK - 1;
+var TYPES = ['+1','+1','+1','+1','+1','+2','-1','-1'];
+
+function shuffleArr(a){
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=a[i]; a[i]=a[j]; a[j]=t;
+  }
+  return a;
+}
+
+function makeDeck(){
+  var deck=[], id=0, c, i;
+  for(i=0;i<COLORS.length;i++){
+    c=COLORS[i];
+    for(var k=0;k<TYPES.length;k++){
+      var tp=TYPES[k];
+      deck.push({id:id++, kind:'normal', color:c, steps: tp==='+2'?2:(tp==='-1'?-1:1), label:tp});
+    }
+  }
+  for(i=0;i<2;i++) deck.push({id:id++, kind:'rainbow', color:null, steps:-1, label:'-1'});
+  for(i=0;i<5;i++) deck.push({id:id++, kind:'rainbow', color:null, steps: 1, label:'+1'});
+  for(i=0;i<3;i++) deck.push({id:id++, kind:'arrow', color:null, steps:1, label:'↑'});
+  for(i=0;i<2;i++) deck.push({id:id++, kind:'doublearrow', color:null, steps:2, label:'⇈'});
+  return deck;
+}
+
+function cardName(card){
+  if(card.kind==='normal') return COLOR_META[card.color].zh + '龟 ' + card.label;
+  if(card.kind==='rainbow') return '彩虹 ' + (card.steps>0?'+1':'−1');
+  if(card.kind==='arrow') return '箭头卡';
+  return '双箭头卡';
+}
+
+function Game(opts){
+  opts = opts || {};
+  var n = opts.playerCount || 4;
+  this.stacks = [];
+  for(var i=0;i<TRACK;i++) this.stacks.push([]);
+  this.stacks[START_COL] = COLORS.slice();   // 底 -> 顶
+  var cols = shuffleArr(COLORS.slice());
+  this.players = [];
+  this.players.push({name: opts.humanName || '你', color: cols[0], human:true, hand:[]});
+  for(var p=1;p<n;p++){
+    this.players.push({name:'AI - '+p, color: cols[p], human:false, hand:[]});
+  }
+  this.deck = shuffleArr(makeDeck());
+  this.discard = [];
+  for(var q=0;q<this.players.length;q++)
+    for(var d=0;d<5;d++) this.draw(this.players[q]);
+  this.turn = 0;
+  this.winner = null;
+  this.round = 0;
+  this.plays = 0;
+}
+
+Game.prototype.currentPlayer = function(){ return this.players[this.turn]; };
+
+Game.prototype.nextTurn = function(){
+  this.turn = (this.turn + 1) % this.players.length;
+  if(this.turn === 0) this.round++;
+};
+
+Game.prototype.colOf = function(color){
+  for(var c=0;c<TRACK;c++) if(this.stacks[c].indexOf(color) >= 0) return c;
+  return -1;
+};
+
+Game.prototype.draw = function(player){
+  if(this.deck.length === 0){
+    if(this.discard.length === 0) return null;
+    this.deck = shuffleArr(this.discard.slice());
+    this.discard = [];
+  }
+  var card = this.deck.shift();
+  player.hand.push(card);
+  return card;
+};
+
+/* 返回最落后的乌龟颜色（可能并列） */
+Game.prototype.rearmost = function(){
+  var min = TRACK - 1, i, c;
+  for(i=0;i<COLORS.length;i++){
+    c = this.colOf(COLORS[i]);
+    if(c >= 0 && c < min) min = c;
+  }
+  var out = [];
+  for(i=0;i<COLORS.length;i++){
+    if(this.colOf(COLORS[i]) === min) out.push(COLORS[i]);
+  }
+  return out;
+};
+
+/* 移动一只龟（连带它背上的龟） */
+Game.prototype.move = function(color, steps){
+  var from = this.colOf(color);
+  if(from < 0) return null;
+  if(from === START_COL && steps < 0) return null;      // 起点不能后退
+  var to = from + steps;
+  if(to > GOAL_COL) to = GOAL_COL;
+  if(to < START_COL) to = START_COL;
+  if(to === from) return null;
+
+  var stack = this.stacks[from];
+  var idx = stack.indexOf(color);
+  var moving, carried;
+
+  if(from === START_COL){
+    // 起点上的龟不是叠在一起的，只动它自己
+    moving = [color];
+    stack.splice(idx, 1);
+  } else {
+    moving = stack.slice(idx);          // 自己 + 背上所有龟
+    this.stacks[from] = stack.slice(0, idx);
+  }
+  carried = moving.length;
+  this.stacks[to] = this.stacks[to].concat(moving);
+
+  return {color:color, from:from, to:to, steps:to-from, carried:carried, colors:moving};
+};
+
+Game.prototype.checkWinner = function(){
+  var goal = this.stacks[GOAL_COL];
+  for(var i=0;i<goal.length;i++){
+    for(var p=0;p<this.players.length;p++){
+      if(this.players[p].color === goal[i]) return this.players[p];
+    }
+  }
+  return null;
+};
+
+/* pi: 玩家索引, handIndex: 手牌索引, color: 彩虹/箭头卡解析出的颜色 */
+Game.prototype.play = function(pi, handIndex, color){
+  var p = this.players[pi];
+  var card = p.hand[handIndex];
+  if(!card) return {error:'invalid-card'};
+  var target = (card.kind === 'normal') ? card.color : color;
+  if(!target) return {error:'need-color'};
+
+  p.hand.splice(handIndex, 1);
+  var mv = this.move(target, card.steps);
+  this.discard.push(card);
+  var drew = this.draw(p);
+  this.plays++;
+
+  var win = this.checkWinner();
+  if(win) this.winner = win;
+  return {card:card, target:target, move:mv, drew:!!drew, winner:win};
+};
+
+/* ---------------- AI ---------------- */
+function evalMove(g, own, target, steps){
+  var from = g.colOf(target);
+  if(from < 0) return -999;
+  var to = from + steps;
+  if(to > GOAL_COL) to = GOAL_COL;
+  if(to < START_COL) to = START_COL;
+  if(from === START_COL && steps < 0) to = START_COL;
+
+  var ownCol = g.colOf(own);
+  var s = 0;
+  if(target === own){
+    s += (to - from) * 6;
+    if(to === GOAL_COL) s += 110;
+    if(from === GOAL_COL) s -= 90;          // 已经到终点，别再动它
+    if(to === from) s -= 7;                 // 无效移动
+  } else {
+    if(steps > 0){
+      s -= (to - from) * 3;
+      if(to === GOAL_COL) s -= 70;
+      if(from < ownCol) s -= 1.5;           // 帮落后的对手
+    } else {
+      s += (from - to) * 4;
+      if(from > ownCol) s += 3;             // 拖住领先的对手
+    }
+  }
+  return s;
+}
+
+function planFor(g, own, card){
+  var best, i, s;
+  if(card.kind === 'normal'){
+    return {color: card.color, score: evalMove(g, own, card.color, card.steps) + Math.random()*5};
+  }
+  if(card.kind === 'rainbow'){
+    if(card.steps > 0){
+      return {color: own, score: evalMove(g, own, own, 1) + 4 + Math.random()*3};
+    }
+    best = null;
+    for(i=0;i<COLORS.length;i++){
+      if(COLORS[i] === own) continue;
+      s = evalMove(g, own, COLORS[i], -1) + Math.random()*4;
+      if(!best || s > best.score) best = {color:COLORS[i], score:s};
+    }
+    if(!best) best = {color:own, score:-50};
+    return best;
+  }
+  var opts = g.rearmost();
+  best = null;
+  for(i=0;i<opts.length;i++){
+    s = evalMove(g, own, opts[i], card.steps) + Math.random()*4;
+    if(!best || s > best.score) best = {color:opts[i], score:s};
+  }
+  return best;
+}
+
+function aiDecideCard(g, player){
+  var best = null;
+  for(var i=0;i<player.hand.length;i++){
+    var plan = planFor(g, player.color, player.hand[i]);
+    if(!best || plan.score > best.score) best = {handIndex:i, color:plan.color, score:plan.score};
+  }
+  return best;
+}
+/* ===ENGINE_END=== */
+</script>
+
+<script>
+/* ===UI_START=== */
+var S = { game:null, busy:false, lastMoved:[], picker:null, playerCount:4 };
+
+var TURTLE_SVG = '<svg viewBox="0 0 40 28" aria-hidden="true">'
+  + '<ellipse cx="6.5" cy="8" rx="4.4" ry="2.7" fill="var(--c)" opacity=".85"/>'
+  + '<ellipse cx="6.5" cy="20" rx="4.4" ry="2.7" fill="var(--c)" opacity=".85"/>'
+  + '<ellipse cx="17" cy="25" rx="4.2" ry="2.6" fill="var(--c)" opacity=".85"/>'
+  + '<ellipse cx="17" cy="3.4" rx="4.2" ry="2.6" fill="var(--c)" opacity=".85"/>'
+  + '<circle cx="32.6" cy="14" r="5" fill="var(--c)"/>'
+  + '<circle cx="34.2" cy="12.6" r="1" fill="#fff" opacity=".85"/>'
+  + '<ellipse cx="18.4" cy="14" rx="11.6" ry="8.8" fill="var(--c)"/>'
+  + '<ellipse cx="18.4" cy="14" rx="7.4" ry="5.4" fill="#fff" opacity=".32"/>'
+  + '<path d="M18.4 6.4v15.2M9.4 14h18" stroke="#000" stroke-opacity=".16" stroke-width="1.3" fill="none"/>'
+  + '</svg>';
+
+function $(id){ return document.getElementById(id); }
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(m){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];
+  });
+}
+
+/* ---------- render ---------- */
+function renderTrack(){
+  var g = S.game, track = $('track');
+  track.innerHTML = '';
+  for(var c=0;c<TRACK;c++){
+    var wrap = document.createElement('div'); wrap.className = 'colwrap';
+    var col = document.createElement('div');
+    col.className = 'col' + (c===0?' start':'') + (c===TRACK-1?' finish':'');
+    var stack = g.stacks[c];
+    for(var i=0;i<stack.length;i++){
+      var color = stack[i];
+      var t = document.createElement('div');
+      t.className = 'turtle' + (S.lastMoved.indexOf(color) >= 0 ? ' moved' : '');
+      t.style.setProperty('--c', COLOR_META[color].hex);
+      t.title = COLOR_META[color].zh + '龟';
+      t.innerHTML = TURTLE_SVG;
+      col.appendChild(t);
+    }
+    wrap.appendChild(col);
+    var num = document.createElement('div');
+    num.className = 'colnum' + (c===0?' hot':'') + (c===TRACK-1?' hot':'');
+    num.textContent = c===0 ? '起点' : (c===TRACK-1 ? '终点' : c);
+    wrap.appendChild(num);
+    track.appendChild(wrap);
+  }
+}
+
+function renderPlayers(){
+  var g = S.game, box = $('players');
+  box.innerHTML = '';
+  for(var i=0;i<g.players.length;i++){
+    var p = g.players[i];
+    var el = document.createElement('div');
+    el.className = 'pl' + (g.turn===i ? ' on' : '');
+    var reveal = p.human || !!g.winner;
+    var dot = reveal
+      ? '<span class="dot" style="--c:'+COLOR_META[p.color].hex+'"></span>'
+      : '<span class="dot q">?</span>';
+    el.innerHTML = dot + '<span class="nm">' + esc(p.name) + '</span>'
+      + '<span class="cnt">' + p.hand.length + ' 张</span>';
+    box.appendChild(el);
+  }
+}
+
+function renderHand(){
+  var g = S.game, hand = $('hand'), me = g.players[0];
+  hand.innerHTML = '';
+  for(var i=0;i<me.hand.length;i++){
+    var c = me.hand[i];
+    var b = document.createElement('button');
+    var cls = 'card';
+    if(c.kind === 'rainbow') cls += ' rainbow';
+    if(c.kind === 'arrow' || c.kind === 'doublearrow') cls += ' arrow';
+    b.className = cls;
+    if(c.kind === 'normal'){ b.style.setProperty('--c', COLOR_META[c.color].hex); b.style.setProperty('--cc', COLOR_META[c.color].deep); }
+    else if(c.kind === 'rainbow') b.style.setProperty('--c', '#cbd5e1');
+    else b.style.setProperty('--c', '#94a3b8');
+
+    var top, big;
+    if(c.kind === 'normal'){ top = COLOR_META[c.color].zh + '龟'; big = c.label.replace('-1','−1'); }
+    else if(c.kind === 'rainbow'){ top = '彩虹'; big = c.steps > 0 ? '+1' : '−1'; }
+    else if(c.kind === 'arrow'){ top = '最落后'; big = '↑'; }
+    else { top = '最落后'; big = '⇈'; }
+
+    b.innerHTML = '<span class="cbar"></span><span class="ctop">'+top+'</span>'
+      + '<span class="cbig">'+big+'</span><span class="cfoot">'+cardName(c)+'</span>';
+    b.onclick = (function(idx){ return function(){ humanPickCard(idx); }; })(i);
+    if(S.busy || !g.currentPlayer().human || g.winner) b.disabled = true;
+    hand.appendChild(b);
+  }
+}
+
+function renderHead(){
+  var g = S.game, me = g.players[0], p = g.currentPlayer();
+  var turn = $('turnText');
+  if(g.winner){
+    turn.innerHTML = '<span>🏁 对局结束</span>';
+  } else if(p.human){
+    turn.innerHTML = '<span class="pulse"></span><span>轮到你了 · 点击手牌出牌</span>';
+  } else {
+    turn.innerHTML = '<span class="pulse" style="background:#94a3b8"></span><span>' + esc(p.name) + ' 正在出牌…</span>';
+  }
+  $('metaBox').innerHTML =
+    '<span class="tag">你是 <span class="dot" style="--c:'+COLOR_META[me.color].hex+'"></span><b>'+COLOR_META[me.color].zh+'龟</b></span>'
+    + '<span class="tag">牌堆 <b>'+g.deck.length+'</b></span>'
+    + '<span class="tag">弃牌 <b>'+g.discard.length+'</b></span>';
+}
+
+function log(msg, cls){
+  var box = $('logBox');
+  var d = document.createElement('div');
+  d.className = 'ln ' + (cls || '');
+  d.textContent = msg;
+  box.appendChild(d);
+  while(box.children.length > 120) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderAll(){
+  if(!S.game) return;
+  renderTrack(); renderPlayers(); renderHand(); renderHead();
+}
+
+/* ---------- flow ---------- */
+function startGame(count, name){
+  S.playerCount = count;
+  S.game = new Game({playerCount: count, humanName: name});
+  S.busy = false; S.lastMoved = []; S.picker = null;
+  $('logBox').innerHTML = '';
+  renderAll();
+  var me = S.game.players[0];
+  log('新对局开始：' + count + ' 位玩家，' + (count-1) + ' 个电脑对手。', 'sys');
+  log('你抽到的龟是「' + COLOR_META[me.color].zh + '龟」，别让人看出来你在帮它。', 'sys');
+  beginTurn();
+}
+
+function beginTurn(){
+  var g = S.game;
+  if(g.winner){ showEnd(); return; }
+  var p = g.currentPlayer();
+  S.busy = !p.human;          // 电脑回合时手牌置灰
+  renderAll();
+  if(!p.human) setTimeout(aiTurn, 780);
+}
+
+function aiTurn(){
+  var g = S.game, p = g.currentPlayer();
+  if(p.human || g.winner) return;
+  var d = aiDecideCard(g, p);
+  doPlay(d.handIndex, d.color);
+}
+
+function humanPickCard(i){
+  var g = S.game;
+  if(S.busy || g.winner || !g.currentPlayer().human) return;
+  var card = g.players[0].hand[i];
+  if(!card) return;
+
+  if(card.kind === 'normal'){ doPlay(i, card.color); return; }
+  if(card.kind === 'rainbow'){
+    openPicker(COLORS,
+      card.steps > 0 ? '彩虹 +1' : '彩虹 −1',
+      card.steps > 0 ? '选择一只前进 1 格的乌龟' : '选择一只后退 1 格的乌龟',
+      function(c){ doPlay(i, c); });
+    return;
+  }
+  var opts = g.rearmost();
+  if(opts.length <= 1){ doPlay(i, opts[0]); return; }
+  openPicker(opts, '箭头卡', '最落后的乌龟不止一只，选一只前进 ' + card.steps + ' 格', function(c){ doPlay(i, c); });
+}
+
+function doPlay(handIndex, color){
+  var g = S.game, pi = g.turn, p = g.players[pi];
+  S.busy = true;
+  var res = g.play(pi, handIndex, color);
+  if(res.error){ S.busy = false; renderAll(); return; }
+
+  var who = p.human ? '你' : p.name;
+  var zh = COLOR_META[res.target].zh;
+  var msg = who + ' 打出 ' + cardName(res.card);
+  if(res.card.kind !== 'normal') msg += '，指定 ' + zh + '龟';
+
+  if(res.move){
+    var mv = res.move;
+    msg += ' · ' + zh + '龟 ' + (mv.steps > 0 ? '前进 ' : '后退 ') + Math.abs(mv.steps) + ' 格（' + mv.from + ' → ' + mv.to + '）';
+    if(mv.carried > 1) msg += '，背着 ' + (mv.carried-1) + ' 只龟一起走';
+    if(mv.to === GOAL_COL) msg += ' 🏁';
+    S.lastMoved = mv.colors;
+  } else {
+    msg += ' · ' + zh + '龟在起点，无法后退';
+  }
+  log(msg, p.human ? 'me' : 'ai');
+  renderAll();
+
+  setTimeout(function(){
+    S.lastMoved = [];
+    renderTrack();
+    if(res.winner){ g.winner = res.winner; renderAll(); showEnd(); return; }
+    g.nextTurn();
+    beginTurn();
+  }, 820);
+}
+
+/* ---------- picker ---------- */
+function openPicker(options, title, sub, cb){
+  S.picker = cb;
+  $('pickTitle').textContent = title;
+  $('pickSub').textContent = sub;
+  var box = $('pickOptions');
+  box.innerHTML = '';
+  options.forEach(function(c){
+    var b = document.createElement('button');
+    b.className = 'pick';
+    b.style.setProperty('--c', COLOR_META[c].hex);
+    b.innerHTML = '<span class="pdot"></span><span>' + COLOR_META[c].zh + '龟</span>';
+    b.onclick = function(){ closePicker(); cb(c); };
+    box.appendChild(b);
+  });
+  $('pickVeil').classList.add('show');
+}
+function closePicker(){
+  $('pickVeil').classList.remove('show');
+  S.picker = null;
+}
+
+/* ---------- end ---------- */
+function showEnd(){
+  var g = S.game, w = g.winner, me = g.players[0];
+  var youWin = w && w.color === me.color;
+  $('endTitle').textContent = youWin ? '🏆 你赢了！' : (w ? w.name + ' 赢了' : '平局');
+  $('endSub').textContent = w
+    ? '「' + COLOR_META[w.color].zh + '龟」率先抵达终点。你的龟是「' + COLOR_META[me.color].zh + '龟」，现在可以看所有人的颜色了。'
+    : '没有玩家的龟在终点。';
+
+  var list = $('endList');
+  list.innerHTML = '';
+  g.players.forEach(function(p){
+    var row = document.createElement('div');
+    row.className = 'winline' + (p === w ? ' you' : '');
+    row.innerHTML = '<span class="dot" style="--c:' + COLOR_META[p.color].hex + '"></span>'
+      + '<span>' + esc(p.name) + '</span>'
+      + '<span class="k">' + COLOR_META[p.color].zh + '龟 · 第 ' + g.colOf(p.color) + ' 格</span>';
+    list.appendChild(row);
+  });
+  log(w ? ('对局结束，' + (youWin ? '你' : w.name) + ' 获胜。') : '对局结束。', 'win');
+  $('endVeil').classList.add('show');
+}
+
+/* ---------- wiring ---------- */
+(function init(){
+  var nameVal = '玩家';
+
+  $('segs').addEventListener('click', function(e){
+    var b = e.target.closest('.seg');
+    if(!b) return;
+    Array.prototype.forEach.call(this.children, function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    S.playerCount = parseInt(b.dataset.n, 10);
+  });
+
+  function launch(){
+    nameVal = ($('nameInput').value || '').trim().slice(0,12) || '玩家';
+    $('setupVeil').classList.remove('show');
+    startGame(S.playerCount, nameVal);
+  }
+
+  $('btnStart').onclick = launch;
+  $('nameInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') launch(); });
+
+  $('btnRules').onclick = function(){ $('rulesVeil').classList.add('show'); };
+  $('btnRules2').onclick = function(){ $('rulesVeil').classList.add('show'); };
+  $('btnRulesClose').onclick = function(){ $('rulesVeil').classList.remove('show'); };
+
+  $('btnNew').onclick = function(){
+    if(!S.game) return;
+    $('endVeil').classList.remove('show');
+    startGame(S.playerCount, S.game.players[0].name);
+  };
+  $('btnAgain').onclick = function(){
+    $('endVeil').classList.remove('show');
+    startGame(S.playerCount, S.game.players[0].name);
+  };
+  $('btnChange').onclick = function(){
+    $('endVeil').classList.remove('show');
+    $('setupVeil').classList.add('show');
+  };
+
+  document.addEventListener('keydown', function(e){
+    if(S.busy || !S.game || S.game.winner) return;
+    if(e.key >= '1' && e.key <= '5'){
+      var i = parseInt(e.key, 10) - 1;
+      if(S.game.players[0].hand[i]) humanPickCard(i);
+    }
+  });
+
+  // 开场先渲染一个静态棋盘做背景
+  S.game = new Game({playerCount:4, humanName:'玩家'});
+  renderAll();
+})();
+/* ===UI_END=== */
+</script>
+</body>
+</html>
