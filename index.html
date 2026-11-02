@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-Hans">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -173,12 +173,13 @@
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>🐢 跑跑龟</h1>
+      <h1 data-i18n="brand">🐢 跑跑龟</h1>
       <small>The Great Turtle Race</small>
     </div>
     <div class="acts">
-      <button class="btn" id="btnRules">游戏规则</button>
-      <button class="btn" id="btnNew">重新开局</button>
+      <button class="btn" id="btnLang" title="中文 / English">EN</button>
+      <button class="btn" id="btnRules" data-i18n="btn.rules">游戏规则</button>
+      <button class="btn" id="btnNew" data-i18n="btn.new">重新开局</button>
     </div>
   </header>
 
@@ -190,13 +191,13 @@
   <div class="bottom">
     <section class="panel">
       <div class="playhead">
-        <div class="turn" id="turnText"><span class="pulse"></span><span>准备开始</span></div>
+        <div class="turn" id="turnText"><span class="pulse"></span><span data-i18n="turn.ready">准备开始</span></div>
         <div class="meta" id="metaBox"></div>
       </div>
       <div class="hand" id="hand"></div>
     </section>
     <section class="panel">
-      <h3>对局记录</h3>
+      <h3 data-i18n="panel.log">对局记录</h3>
       <div class="logbox" id="logBox"></div>
     </section>
   </div>
@@ -205,24 +206,24 @@
 <!-- 开局设置 -->
 <div class="veil show" id="setupVeil">
   <div class="modal">
-    <h2>🐢 跑跑龟</h2>
-    <p>五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。</p>
+    <h2 data-i18n="setup.title">🐢 跑跑龟</h2>
+    <p data-i18n-html="setup.intro">五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。</p>
     <div class="field">
-      <label>你的名字</label>
+      <label data-i18n="setup.name">你的名字</label>
       <input type="text" id="nameInput" maxlength="12" placeholder="请输入名字" value="玩家">
     </div>
     <div class="field">
-      <label>玩家人数（你 + 电脑）</label>
+      <label data-i18n="setup.players">玩家人数（你 + 电脑）</label>
       <div class="segs" id="segs">
-        <button class="seg" data-n="2">2<small>你 + 1 AI</small></button>
-        <button class="seg" data-n="3">3<small>你 + 2 AI</small></button>
-        <button class="seg on" data-n="4">4<small>你 + 3 AI</small></button>
-        <button class="seg" data-n="5">5<small>你 + 4 AI</small></button>
+        <button class="seg" data-n="2">2<small data-i18n="setup.ai1">你 + 1 AI</small></button>
+        <button class="seg" data-n="3">3<small data-i18n="setup.ai2">你 + 2 AI</small></button>
+        <button class="seg on" data-n="4">4<small data-i18n="setup.ai3">你 + 3 AI</small></button>
+        <button class="seg" data-n="5">5<small data-i18n="setup.ai4">你 + 4 AI</small></button>
       </div>
     </div>
     <div class="row">
-      <button class="btn primary" id="btnStart" style="flex:1;padding:12px">开始游戏</button>
-      <button class="btn" id="btnRules2" style="padding:12px">看规则</button>
+      <button class="btn primary" id="btnStart" style="flex:1;padding:12px" data-i18n="setup.start">开始游戏</button>
+      <button class="btn" id="btnRules2" style="padding:12px" data-i18n="setup.rules">看规则</button>
     </div>
   </div>
 </div>
@@ -230,7 +231,7 @@
 <!-- 选颜色 -->
 <div class="veil" id="pickVeil">
   <div class="modal" style="max-width:430px">
-    <h2 id="pickTitle">选择乌龟</h2>
+    <h2 id="pickTitle" data-i18n="pick.title">选择乌龟</h2>
     <p id="pickSub" style="margin-bottom:16px"></p>
     <div class="row" id="pickOptions"></div>
   </div>
@@ -239,19 +240,19 @@
 <!-- 规则 -->
 <div class="veil" id="rulesVeil">
   <div class="modal">
-    <h2>怎么玩</h2>
-    <p>先到终点的乌龟获胜，你要做的是把「自己的龟」送过去。</p>
+    <h2 data-i18n="rules.title">怎么玩</h2>
+    <p data-i18n="rules.lead">先到终点的乌龟获胜，你要做的是把「自己的龟」送过去。</p>
     <ol class="rules">
-      <li>棋盘共 10 格，从起点（第 0 格）到终点（第 9 格）。</li>
-      <li>每回合打出一张手牌，让<b>卡牌指定颜色</b>的乌龟前进或后退：<b>+1 / +2 / −1</b>。</li>
-      <li>乌龟会<b>叠罗汉</b>：移动位于下方（垫底）的龟时，它背上的龟会被一起带走；后退到起点就无法再退。</li>
-      <li><b>彩虹卡</b>（彩虹 +1 / 彩虹 −1）：由你指定任意一只龟移动，是最强的调度牌。</li>
-      <li><b>箭头卡</b>：全场<b>最落后</b>的那只龟前进 1 格；<b>双箭头</b>前进 2 格。若有多只并列最落后，由你选一只。</li>
-      <li>打出牌后补一张，手牌始终保持 5 张；牌堆抽完会把弃牌重新洗入。</li>
-      <li>你只知道自己的颜色，电脑的颜色是隐藏的——看谁在帮哪只龟，就能猜出来。</li>
+      <li data-i18n-html="rules.1">棋盘共 10 格，从起点（第 0 格）到终点（第 9 格）。</li>
+      <li data-i18n-html="rules.2">每回合打出一张手牌，让<b>卡牌指定颜色</b>的乌龟前进或后退：<b>+1 / +2 / −1</b>。</li>
+      <li data-i18n-html="rules.3">乌龟会<b>叠罗汉</b>：移动位于下方（垫底）的龟时，它背上的龟会被一起带走；后退到起点就无法再退。</li>
+      <li data-i18n-html="rules.4"><b>彩虹卡</b>（彩虹 +1 / 彩虹 −1）：由你指定任意一只龟移动，是最强的调度牌。</li>
+      <li data-i18n-html="rules.5"><b>箭头卡</b>：全场<b>最落后</b>的那只龟前进 1 格；<b>双箭头</b>前进 2 格。若有多只并列最落后，由你选一只。</li>
+      <li data-i18n-html="rules.6">打出牌后补一张，手牌始终保持 5 张；牌堆抽完会把弃牌重新洗入。</li>
+      <li data-i18n-html="rules.7">你只知道自己的颜色，电脑的颜色是隐藏的——看谁在帮哪只龟，就能猜出来。</li>
     </ol>
     <div class="row" style="margin-top:18px">
-      <button class="btn primary" id="btnRulesClose" style="flex:1;padding:11px">明白了</button>
+      <button class="btn primary" id="btnRulesClose" style="flex:1;padding:11px" data-i18n="rules.got">明白了</button>
     </div>
   </div>
 </div>
@@ -263,8 +264,8 @@
     <p id="endSub"></p>
     <div id="endList" style="margin-bottom:18px"></div>
     <div class="row">
-      <button class="btn primary" id="btnAgain" style="flex:1;padding:11px">再来一局</button>
-      <button class="btn" id="btnChange" style="padding:11px">换人数</button>
+      <button class="btn primary" id="btnAgain" style="flex:1;padding:11px" data-i18n="end.again">再来一局</button>
+      <button class="btn" id="btnChange" style="padding:11px" data-i18n="end.change">换人数</button>
     </div>
   </div>
 </div>
@@ -273,12 +274,180 @@
 /* ===ENGINE_START=== */
 var COLORS = ['red','blue','green','yellow','purple'];
 var COLOR_META = {
-  red:    {zh:'红', hex:'#ef4444', deep:'#dc2626'},
-  blue:   {zh:'蓝', hex:'#3b82f6', deep:'#2563eb'},
-  green:  {zh:'绿', hex:'#22c55e', deep:'#16a34a'},
-  yellow: {zh:'黄', hex:'#eab308', deep:'#b8860b'},
-  purple: {zh:'紫', hex:'#a855f7', deep:'#9333ea'}
+  red:    {zh:'红', en:'Red',    hex:'#ef4444', deep:'#dc2626'},
+  blue:   {zh:'蓝', en:'Blue',   hex:'#3b82f6', deep:'#2563eb'},
+  green:  {zh:'绿', en:'Green',  hex:'#22c55e', deep:'#16a34a'},
+  yellow: {zh:'黄', en:'Yellow', hex:'#eab308', deep:'#b8860b'},
+  purple: {zh:'紫', en:'Purple', hex:'#a855f7', deep:'#9333ea'}
 };
+
+/* ---------------- i18n ---------------- */
+var LANG = 'zh';
+
+var I18N = {
+  zh: {
+    'html.lang': 'zh-Hans',
+    'page.title': '跑跑龟 · The Great Turtle Race',
+    'brand': '🐢 跑跑龟',
+    'btn.rules': '游戏规则',
+    'btn.new': '重新开局',
+    'btn.lang': 'EN',
+    'panel.log': '对局记录',
+    'turn.ready': '准备开始',
+    'turn.over': '🏁 对局结束',
+    'turn.you': '轮到你了 · 点击手牌出牌',
+    'turn.ai': '{0} 正在出牌…',
+    'meta.you': '你是',
+    'meta.deck': '牌堆',
+    'meta.discard': '弃牌',
+    'col.start': '起点',
+    'col.finish': '终点',
+    'pl.cards': '{0} 张',
+    'name.default': '玩家',
+    'setup.title': '🐢 跑跑龟',
+    'setup.intro': '五只乌龟从起点出发，谁先把<b>自己颜色的龟</b>送到终点谁就赢。打牌、叠罗汉、卡位——开始吧。',
+    'setup.name': '你的名字',
+    'setup.namePh': '请输入名字',
+    'setup.players': '玩家人数（你 + 电脑）',
+    'setup.ai1': '你 + 1 AI',
+    'setup.ai2': '你 + 2 AI',
+    'setup.ai3': '你 + 3 AI',
+    'setup.ai4': '你 + 4 AI',
+    'setup.start': '开始游戏',
+    'setup.rules': '看规则',
+    'pick.title': '选择乌龟',
+    'pick.rainbowUp': '选择一只前进 1 格的乌龟',
+    'pick.rainbowDown': '选择一只后退 1 格的乌龟',
+    'pick.arrowTitle': '箭头卡',
+    'pick.arrowSub': '最落后的乌龟不止一只，选一只前进 {0} 格',
+    'rules.title': '怎么玩',
+    'rules.lead': '先到终点的乌龟获胜，你要做的是把「自己的龟」送过去。',
+    'rules.1': '棋盘共 10 格，从起点（第 0 格）到终点（第 9 格）。',
+    'rules.2': '每回合打出一张手牌，让<b>卡牌指定颜色</b>的乌龟前进或后退：<b>+1 / +2 / −1</b>。',
+    'rules.3': '乌龟会<b>叠罗汉</b>：移动位于下方（垫底）的龟时，它背上的龟会被一起带走；后退到起点就无法再退。',
+    'rules.4': '<b>彩虹卡</b>（彩虹 +1 / 彩虹 −1）：由你指定任意一只龟移动，是最强的调度牌。',
+    'rules.5': '<b>箭头卡</b>：全场<b>最落后</b>的那只龟前进 1 格；<b>双箭头</b>前进 2 格。若有多只并列最落后，由你选一只。',
+    'rules.6': '打出牌后补一张，手牌始终保持 5 张；牌堆抽完会把弃牌重新洗入。',
+    'rules.7': '你只知道自己的颜色，电脑的颜色是隐藏的——看谁在帮哪只龟，就能猜出来。',
+    'rules.got': '明白了',
+    'end.youWin': '🏆 你赢了！',
+    'end.win': '{0} 赢了',
+    'end.draw': '平局',
+    'end.subWin': '「{0}」率先抵达终点。你的龟是「{1}」，现在可以看所有人的颜色了。',
+    'end.subDraw': '没有玩家的龟在终点。',
+    'end.k': '{0} · 第 {1} 格',
+    'end.again': '再来一局',
+    'end.change': '换人数',
+    'card.rainbow': '彩虹',
+    'card.arrow': '箭头卡',
+    'card.doublearrow': '双箭头卡',
+    'card.last': '最落后',
+    'log.start1': '新对局开始：{0} 位玩家，{1} 个电脑对手。',
+    'log.start2': '你抽到的龟是「{0}」，别让人看出来你在帮它。',
+    'log.youPlay': '你 打出 {0}',
+    'log.play': '{0} 打出 {1}',
+    'log.target': '，指定 {0}',
+    'log.fwd': ' · {0} 前进 {1} 格（{2} → {3}）',
+    'log.back': ' · {0} 后退 {1} 格（{2} → {3}）',
+    'log.carry': '，背着 {0} 只龟一起走',
+    'log.goal': ' 🏁',
+    'log.stuck': ' · {0}在起点，无法后退',
+    'log.endWin': '对局结束，{0} 获胜。',
+    'log.endDraw': '对局结束。',
+    'log.you': '你'
+  },
+  en: {
+    'html.lang': 'en',
+    'page.title': 'Turtle Race · The Great Turtle Race',
+    'brand': '🐢 Turtle Race',
+    'btn.rules': 'Rules',
+    'btn.new': 'New game',
+    'btn.lang': '中文',
+    'panel.log': 'Move log',
+    'turn.ready': 'Ready when you are',
+    'turn.over': '🏁 Race over',
+    'turn.you': 'Your turn · tap a card',
+    'turn.ai': '{0} is playing…',
+    'meta.you': "You're the",
+    'meta.deck': 'Deck',
+    'meta.discard': 'Discard',
+    'col.start': 'Start',
+    'col.finish': 'Finish',
+    'pl.cards': '{0} cards',
+    'name.default': 'You',
+    'setup.title': '🐢 Turtle Race',
+    'setup.intro': 'Five turtles start from the same square. Get <b>the turtle of your colour</b> to the finish first to win. Play cards, stack turtles, block rivals — off you go.',
+    'setup.name': 'Your name',
+    'setup.namePh': 'Enter your name',
+    'setup.players': 'Players (you + AI)',
+    'setup.ai1': 'You + 1 AI',
+    'setup.ai2': 'You + 2 AI',
+    'setup.ai3': 'You + 3 AI',
+    'setup.ai4': 'You + 4 AI',
+    'setup.start': 'Start game',
+    'setup.rules': 'Rules',
+    'pick.title': 'Choose a turtle',
+    'pick.rainbowUp': 'Pick a turtle to move forward 1',
+    'pick.rainbowDown': 'Pick a turtle to move back 1',
+    'pick.arrowTitle': 'Arrow card',
+    'pick.arrowSub': 'Several turtles are tied for last — pick one to move forward {0}',
+    'rules.title': 'How to play',
+    'rules.lead': 'The first turtle to reach the finish wins — your job is to get your own turtle there.',
+    'rules.1': 'The track has 10 squares, from Start (0) to Finish (9).',
+    'rules.2': 'Each turn you play one card and move the turtle of <b>that card\'s colour</b> forward or back: <b>+1 / +2 / −1</b>.',
+    'rules.3': 'Turtles <b>stack up</b>: move the turtle underneath and everything riding on it comes along. A turtle on the start square can never move back.',
+    'rules.4': '<b>Rainbow card</b> (rainbow +1 / rainbow −1): you choose any turtle to move — the most flexible card in the deck.',
+    'rules.5': '<b>Arrow card</b>: the <b>last-placed</b> turtle moves forward 1; the <b>double arrow</b> moves it 2. If several are tied for last, you choose one.',
+    'rules.6': 'Draw back up to 5 cards after every play; once the deck runs out the discard pile is reshuffled.',
+    'rules.7': 'You only know your own colour — the AI colours stay hidden. Watch who keeps helping which turtle and you can work them out.',
+    'rules.got': 'Got it',
+    'end.youWin': '🏆 You win!',
+    'end.win': '{0} wins',
+    'end.draw': 'A draw',
+    'end.subWin': '{0} reached the finish first. Your turtle was the {1} — every colour is now revealed.',
+    'end.subDraw': "No player's turtle reached the finish.",
+    'end.k': '{0} · col {1}',
+    'end.again': 'Play again',
+    'end.change': 'Change players',
+    'card.rainbow': 'Rainbow',
+    'card.arrow': 'Arrow card',
+    'card.doublearrow': 'Double arrow',
+    'card.last': 'Last',
+    'log.start1': 'New race: {0} players, {1} AI opponents.',
+    'log.start2': 'Your turtle is the {0} — try not to make it obvious you are helping it.',
+    'log.youPlay': 'You played {0}',
+    'log.play': '{0} played {1}',
+    'log.target': ', targeting the {0}',
+    'log.fwd': ' · {0} forward {1} (col {2} → {3})',
+    'log.back': ' · {0} back {1} (col {2} → {3})',
+    'log.carry': ', carrying {0} more',
+    'log.goal': ' 🏁',
+    'log.stuck': " · {0} is on the start square and can't move back",
+    'log.endWin': 'Race over — {0} wins.',
+    'log.endDraw': 'Race over.',
+    'log.you': 'you'
+  }
+};
+
+function T(key, a, b, c, d){
+  var dict = I18N[LANG] || I18N.zh;
+  var s = dict[key];
+  if(s === undefined) s = I18N.zh[key];
+  if(s === undefined) return key;
+  if(arguments.length > 1){
+    var args = arguments;
+    s = s.replace(/\{(\d)\}/g, function(m, i){
+      var v = args[parseInt(i, 10) + 1];
+      return v === undefined ? m : String(v);
+    });
+  }
+  return s;
+}
+
+function colorName(c){ return LANG === 'zh' ? COLOR_META[c].zh + '龟' : COLOR_META[c].en + ' turtle'; }
+/* 卡面空间窄，英文只用颜色词 */
+function colorShort(c){ return LANG === 'zh' ? COLOR_META[c].zh + '龟' : COLOR_META[c].en; }
+
 var TRACK = 10;
 var START_COL = 0;
 var GOAL_COL = TRACK - 1;
@@ -309,10 +478,10 @@ function makeDeck(){
 }
 
 function cardName(card){
-  if(card.kind==='normal') return COLOR_META[card.color].zh + '龟 ' + card.label;
-  if(card.kind==='rainbow') return '彩虹 ' + (card.steps>0?'+1':'−1');
-  if(card.kind==='arrow') return '箭头卡';
-  return '双箭头卡';
+  if(card.kind==='normal') return colorName(card.color) + ' ' + card.label;
+  if(card.kind==='rainbow') return T('card.rainbow') + ' ' + (card.steps>0?'+1':'−1');
+  if(card.kind==='arrow') return T('card.arrow');
+  return T('card.doublearrow');
 }
 
 function Game(opts){
@@ -323,7 +492,7 @@ function Game(opts){
   this.stacks[START_COL] = COLORS.slice();   // 底 -> 顶
   var cols = shuffleArr(COLORS.slice());
   this.players = [];
-  this.players.push({name: opts.humanName || '你', color: cols[0], human:true, hand:[]});
+  this.players.push({name: opts.humanName || T('name.default'), color: cols[0], human:true, hand:[]});
   for(var p=1;p<n;p++){
     this.players.push({name:'AI - '+p, color: cols[p], human:false, hand:[]});
   }
@@ -500,7 +669,46 @@ function aiDecideCard(g, player){
 
 <script>
 /* ===UI_START=== */
-var S = { game:null, busy:false, lastMoved:[], picker:null, playerCount:4 };
+var S = { game:null, busy:false, lastMoved:[], picker:null, playerCount:4, logs:[], customName:null };
+
+var LANG_STORE_KEY = 'turtleRaceLang';
+
+function detectLang(){
+  var q = null;
+  try{ q = new URLSearchParams(location.search).get('lang'); }catch(e){}
+  if(q && I18N[q]) return q;
+  try{
+    var saved = localStorage.getItem(LANG_STORE_KEY);
+    if(saved && I18N[saved]) return saved;
+  }catch(e){}
+  return 'zh';
+}
+
+/* 把 data-i18n / data-i18n-html 标记的静态节点刷成当前语言 */
+function applyLang(){
+  document.documentElement.lang = T('html.lang');
+  document.title = T('page.title');
+  var nodes = document.querySelectorAll('[data-i18n]');
+  for(var i=0;i<nodes.length;i++) nodes[i].textContent = T(nodes[i].getAttribute('data-i18n'));
+  var hnodes = document.querySelectorAll('[data-i18n-html]');
+  for(var j=0;j<hnodes.length;j++) hnodes[j].innerHTML = T(hnodes[j].getAttribute('data-i18n-html'));
+  $('nameInput').placeholder = T('setup.namePh');
+  $('btnLang').textContent = T('btn.lang');
+  var nv = $('nameInput').value.trim();
+  if(!nv || nv === I18N.zh['name.default'] || nv === I18N.en['name.default']) $('nameInput').value = T('name.default');
+}
+
+function setLang(lang){
+  if(!I18N[lang]) return;
+  LANG = lang;
+  try{ localStorage.setItem(LANG_STORE_KEY, lang); }catch(e){}
+  if(S.game && !S.customName) S.game.players[0].name = T('name.default');
+  applyLang();
+  renderAll();
+  renderLogs();
+  if($('endVeil').classList.contains('show')) renderEnd();
+  if(S.picker) drawPicker();           // 选色弹窗跟着换语言
+}
 
 var TURTLE_SVG = '<svg viewBox="0 0 40 28" aria-hidden="true">'
   + '<ellipse cx="6.5" cy="8" rx="4.4" ry="2.7" fill="var(--c)" opacity=".85"/>'
@@ -536,14 +744,14 @@ function renderTrack(){
       var t = document.createElement('div');
       t.className = 'turtle' + (S.lastMoved.indexOf(color) >= 0 ? ' moved' : '');
       t.style.setProperty('--c', COLOR_META[color].hex);
-      t.title = COLOR_META[color].zh + '龟';
+      t.title = colorName(color);
       t.innerHTML = TURTLE_SVG;
       col.appendChild(t);
     }
     wrap.appendChild(col);
     var num = document.createElement('div');
     num.className = 'colnum' + (c===0?' hot':'') + (c===TRACK-1?' hot':'');
-    num.textContent = c===0 ? '起点' : (c===TRACK-1 ? '终点' : c);
+    num.textContent = c===0 ? T('col.start') : (c===TRACK-1 ? T('col.finish') : c);
     wrap.appendChild(num);
     track.appendChild(wrap);
   }
@@ -561,7 +769,7 @@ function renderPlayers(){
       ? '<span class="dot" style="--c:'+COLOR_META[p.color].hex+'"></span>'
       : '<span class="dot q">?</span>';
     el.innerHTML = dot + '<span class="nm">' + esc(p.name) + '</span>'
-      + '<span class="cnt">' + p.hand.length + ' 张</span>';
+      + '<span class="cnt">' + esc(T('pl.cards', p.hand.length)) + '</span>';
     box.appendChild(el);
   }
 }
@@ -581,10 +789,10 @@ function renderHand(){
     else b.style.setProperty('--c', '#94a3b8');
 
     var top, big;
-    if(c.kind === 'normal'){ top = COLOR_META[c.color].zh + '龟'; big = c.label.replace('-1','−1'); }
-    else if(c.kind === 'rainbow'){ top = '彩虹'; big = c.steps > 0 ? '+1' : '−1'; }
-    else if(c.kind === 'arrow'){ top = '最落后'; big = '↑'; }
-    else { top = '最落后'; big = '⇈'; }
+    if(c.kind === 'normal'){ top = colorShort(c.color); big = c.label.replace('-1','−1'); }
+    else if(c.kind === 'rainbow'){ top = T('card.rainbow'); big = c.steps > 0 ? '+1' : '−1'; }
+    else if(c.kind === 'arrow'){ top = T('card.last'); big = '↑'; }
+    else { top = T('card.last'); big = '⇈'; }
 
     b.innerHTML = '<span class="cbar"></span><span class="ctop">'+top+'</span>'
       + '<span class="cbig">'+big+'</span><span class="cfoot">'+cardName(c)+'</span>';
@@ -598,25 +806,43 @@ function renderHead(){
   var g = S.game, me = g.players[0], p = g.currentPlayer();
   var turn = $('turnText');
   if(g.winner){
-    turn.innerHTML = '<span>🏁 对局结束</span>';
+    turn.innerHTML = '<span>' + esc(T('turn.over')) + '</span>';
   } else if(p.human){
-    turn.innerHTML = '<span class="pulse"></span><span>轮到你了 · 点击手牌出牌</span>';
+    turn.innerHTML = '<span class="pulse"></span><span>' + esc(T('turn.you')) + '</span>';
   } else {
-    turn.innerHTML = '<span class="pulse" style="background:#94a3b8"></span><span>' + esc(p.name) + ' 正在出牌…</span>';
+    turn.innerHTML = '<span class="pulse" style="background:#94a3b8"></span><span>' + esc(T('turn.ai', p.name)) + '</span>';
   }
   $('metaBox').innerHTML =
-    '<span class="tag">你是 <span class="dot" style="--c:'+COLOR_META[me.color].hex+'"></span><b>'+COLOR_META[me.color].zh+'龟</b></span>'
-    + '<span class="tag">牌堆 <b>'+g.deck.length+'</b></span>'
-    + '<span class="tag">弃牌 <b>'+g.discard.length+'</b></span>';
+    '<span class="tag">' + esc(T('meta.you')) + ' <span class="dot" style="--c:'+COLOR_META[me.color].hex+'"></span><b>'+esc(colorName(me.color))+'</b></span>'
+    + '<span class="tag">' + esc(T('meta.deck')) + ' <b>'+g.deck.length+'</b></span>'
+    + '<span class="tag">' + esc(T('meta.discard')) + ' <b>'+g.discard.length+'</b></span>';
 }
 
-function log(msg, cls){
+/* 日志按 [key, args] 分段存，切语言时可整段重译 */
+function log(segs, cls){
+  S.logs.push({segs:segs, cls:cls || ''});
+  while(S.logs.length > 120) S.logs.shift();
+  renderLogs();
+}
+
+function segText(e){
+  var out = '', i;
+  for(i=0;i<e.segs.length;i++){
+    var sg = e.segs[i];
+    out += T.apply(null, [sg[0]].concat(sg[1] || []));
+  }
+  return out;
+}
+
+function renderLogs(){
   var box = $('logBox');
-  var d = document.createElement('div');
-  d.className = 'ln ' + (cls || '');
-  d.textContent = msg;
-  box.appendChild(d);
-  while(box.children.length > 120) box.removeChild(box.firstChild);
+  box.innerHTML = '';
+  for(var i=0;i<S.logs.length;i++){
+    var d = document.createElement('div');
+    d.className = 'ln ' + S.logs[i].cls;
+    d.textContent = segText(S.logs[i]);
+    box.appendChild(d);
+  }
   box.scrollTop = box.scrollHeight;
 }
 
@@ -629,12 +855,12 @@ function renderAll(){
 function startGame(count, name){
   S.playerCount = count;
   S.game = new Game({playerCount: count, humanName: name});
-  S.busy = false; S.lastMoved = []; S.picker = null;
+  S.busy = false; S.lastMoved = []; S.picker = null; S.logs = [];
   $('logBox').innerHTML = '';
   renderAll();
   var me = S.game.players[0];
-  log('新对局开始：' + count + ' 位玩家，' + (count-1) + ' 个电脑对手。', 'sys');
-  log('你抽到的龟是「' + COLOR_META[me.color].zh + '龟」，别让人看出来你在帮它。', 'sys');
+  log([['log.start1', [count, count-1]]], 'sys');
+  log([['log.start2', [colorName(me.color)]]], 'sys');
   beginTurn();
 }
 
@@ -662,15 +888,19 @@ function humanPickCard(i){
 
   if(card.kind === 'normal'){ doPlay(i, card.color); return; }
   if(card.kind === 'rainbow'){
-    openPicker(COLORS,
-      card.steps > 0 ? '彩虹 +1' : '彩虹 −1',
-      card.steps > 0 ? '选择一只前进 1 格的乌龟' : '选择一只后退 1 格的乌龟',
-      function(c){ doPlay(i, c); });
+    openPicker(COLORS, function(c){ doPlay(i, c); }, function(){
+      return {
+        title: T('card.rainbow') + (card.steps > 0 ? ' +1' : ' −1'),
+        sub: card.steps > 0 ? T('pick.rainbowUp') : T('pick.rainbowDown')
+      };
+    });
     return;
   }
   var opts = g.rearmost();
   if(opts.length <= 1){ doPlay(i, opts[0]); return; }
-  openPicker(opts, '箭头卡', '最落后的乌龟不止一只，选一只前进 ' + card.steps + ' 格', function(c){ doPlay(i, c); });
+  openPicker(opts, function(c){ doPlay(i, c); }, function(){
+    return {title: T('pick.arrowTitle'), sub: T('pick.arrowSub', card.steps)};
+  });
 }
 
 function doPlay(handIndex, color){
@@ -679,21 +909,22 @@ function doPlay(handIndex, color){
   var res = g.play(pi, handIndex, color);
   if(res.error){ S.busy = false; renderAll(); return; }
 
-  var who = p.human ? '你' : p.name;
-  var zh = COLOR_META[res.target].zh;
-  var msg = who + ' 打出 ' + cardName(res.card);
-  if(res.card.kind !== 'normal') msg += '，指定 ' + zh + '龟';
+  var segs = p.human
+    ? [['log.youPlay', [cardName(res.card)]]]
+    : [['log.play', [p.name, cardName(res.card)]]];
+  if(res.card.kind !== 'normal') segs.push(['log.target', [colorName(res.target)]]);
 
   if(res.move){
     var mv = res.move;
-    msg += ' · ' + zh + '龟 ' + (mv.steps > 0 ? '前进 ' : '后退 ') + Math.abs(mv.steps) + ' 格（' + mv.from + ' → ' + mv.to + '）';
-    if(mv.carried > 1) msg += '，背着 ' + (mv.carried-1) + ' 只龟一起走';
-    if(mv.to === GOAL_COL) msg += ' 🏁';
+    segs.push([mv.steps > 0 ? 'log.fwd' : 'log.back',
+      [colorName(res.target), Math.abs(mv.steps), mv.from, mv.to]]);
+    if(mv.carried > 1) segs.push(['log.carry', [mv.carried-1]]);
+    if(mv.to === GOAL_COL) segs.push(['log.goal', []]);
     S.lastMoved = mv.colors;
   } else {
-    msg += ' · ' + zh + '龟在起点，无法后退';
+    segs.push(['log.stuck', [colorName(res.target)]]);
   }
-  log(msg, p.human ? 'me' : 'ai');
+  log(segs, p.human ? 'me' : 'ai');
   renderAll();
 
   setTimeout(function(){
@@ -706,21 +937,29 @@ function doPlay(handIndex, color){
 }
 
 /* ---------- picker ---------- */
-function openPicker(options, title, sub, cb){
-  S.picker = cb;
-  $('pickTitle').textContent = title;
-  $('pickSub').textContent = sub;
+/* build() 每次渲染时现场生成文案，保证切换语言后重绘也是新语言 */
+function openPicker(options, cb, build){
+  S.picker = {options:options, cb:cb, build:build};
+  drawPicker();
+  $('pickVeil').classList.add('show');
+}
+
+function drawPicker(){
+  var st = S.picker;
+  if(!st) return;
+  var txt = st.build();
+  $('pickTitle').textContent = txt.title;
+  $('pickSub').textContent = txt.sub;
   var box = $('pickOptions');
   box.innerHTML = '';
-  options.forEach(function(c){
+  st.options.forEach(function(c){
     var b = document.createElement('button');
     b.className = 'pick';
     b.style.setProperty('--c', COLOR_META[c].hex);
-    b.innerHTML = '<span class="pdot"></span><span>' + COLOR_META[c].zh + '龟</span>';
-    b.onclick = function(){ closePicker(); cb(c); };
+    b.innerHTML = '<span class="pdot"></span><span>' + esc(colorName(c)) + '</span>';
+    b.onclick = function(){ var f = st.cb; closePicker(); f(c); };
     box.appendChild(b);
   });
-  $('pickVeil').classList.add('show');
 }
 function closePicker(){
   $('pickVeil').classList.remove('show');
@@ -728,13 +967,13 @@ function closePicker(){
 }
 
 /* ---------- end ---------- */
-function showEnd(){
+function renderEnd(){
   var g = S.game, w = g.winner, me = g.players[0];
   var youWin = w && w.color === me.color;
-  $('endTitle').textContent = youWin ? '🏆 你赢了！' : (w ? w.name + ' 赢了' : '平局');
+  $('endTitle').textContent = youWin ? T('end.youWin') : (w ? T('end.win', w.name) : T('end.draw'));
   $('endSub').textContent = w
-    ? '「' + COLOR_META[w.color].zh + '龟」率先抵达终点。你的龟是「' + COLOR_META[me.color].zh + '龟」，现在可以看所有人的颜色了。'
-    : '没有玩家的龟在终点。';
+    ? T('end.subWin', colorName(w.color), colorName(me.color))
+    : T('end.subDraw');
 
   var list = $('endList');
   list.innerHTML = '';
@@ -743,16 +982,31 @@ function showEnd(){
     row.className = 'winline' + (p === w ? ' you' : '');
     row.innerHTML = '<span class="dot" style="--c:' + COLOR_META[p.color].hex + '"></span>'
       + '<span>' + esc(p.name) + '</span>'
-      + '<span class="k">' + COLOR_META[p.color].zh + '龟 · 第 ' + g.colOf(p.color) + ' 格</span>';
+      + '<span class="k">' + esc(T('end.k', colorName(p.color), g.colOf(p.color))) + '</span>';
     list.appendChild(row);
   });
-  log(w ? ('对局结束，' + (youWin ? '你' : w.name) + ' 获胜。') : '对局结束。', 'win');
+}
+
+function showEnd(){
+  var g = S.game, w = g.winner, me = g.players[0];
+  var youWin = w && w.color === me.color;
+  renderEnd();
+  if(w){
+    log([['log.endWin', [youWin ? T('log.you') : w.name]]], 'win');
+  } else {
+    log([['log.endDraw', []]], 'win');
+  }
   $('endVeil').classList.add('show');
 }
 
 /* ---------- wiring ---------- */
 (function init(){
-  var nameVal = '玩家';
+  LANG = detectLang();
+  applyLang();
+
+  $('btnLang').onclick = function(){
+    setLang(LANG === 'zh' ? 'en' : 'zh');
+  };
 
   $('segs').addEventListener('click', function(e){
     var b = e.target.closest('.seg');
@@ -763,9 +1017,11 @@ function showEnd(){
   });
 
   function launch(){
-    nameVal = ($('nameInput').value || '').trim().slice(0,12) || '玩家';
+    var raw = ($('nameInput').value || '').trim().slice(0,12);
+    var isDefault = !raw || raw === I18N.zh['name.default'] || raw === I18N.en['name.default'];
+    S.customName = isDefault ? null : raw;
     $('setupVeil').classList.remove('show');
-    startGame(S.playerCount, nameVal);
+    startGame(S.playerCount, S.customName || T('name.default'));
   }
 
   $('btnStart').onclick = launch;
@@ -790,6 +1046,7 @@ function showEnd(){
   };
 
   document.addEventListener('keydown', function(e){
+    if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
     if(S.busy || !S.game || S.game.winner) return;
     if(e.key >= '1' && e.key <= '5'){
       var i = parseInt(e.key, 10) - 1;
@@ -798,7 +1055,7 @@ function showEnd(){
   });
 
   // 开场先渲染一个静态棋盘做背景
-  S.game = new Game({playerCount:4, humanName:'玩家'});
+  S.game = new Game({playerCount:4, humanName: T('name.default')});
   renderAll();
 })();
 /* ===UI_END=== */
