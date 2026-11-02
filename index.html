@@ -818,29 +818,27 @@ function renderHead(){
     + '<span class="tag">' + esc(T('meta.discard')) + ' <b>'+g.discard.length+'</b></span>';
 }
 
-/* 日志按 [key, args] 分段存，切语言时可整段重译 */
-function log(segs, cls){
-  S.logs.push({segs:segs, cls:cls || ''});
+/* 日志按 [key, args] 分段存；args 由 build() 在渲染时现场生成，保证切语言后整段重译 */
+function log(build, cls){
+  S.logs.push({build:build, cls:cls || ''});
   while(S.logs.length > 120) S.logs.shift();
   renderLogs();
-}
-
-function segText(e){
-  var out = '', i;
-  for(i=0;i<e.segs.length;i++){
-    var sg = e.segs[i];
-    out += T.apply(null, [sg[0]].concat(sg[1] || []));
-  }
-  return out;
 }
 
 function renderLogs(){
   var box = $('logBox');
   box.innerHTML = '';
   for(var i=0;i<S.logs.length;i++){
+    var e = S.logs[i];
     var d = document.createElement('div');
-    d.className = 'ln ' + S.logs[i].cls;
-    d.textContent = segText(S.logs[i]);
+    d.className = 'ln ' + e.cls;
+    var segs = e.build();
+    var out = '';
+    for(var j=0;j<segs.length;j++){
+      var sg = segs[j];
+      out += T.apply(null, [sg[0]].concat(sg[1] || []));
+    }
+    d.textContent = out;
     box.appendChild(d);
   }
   box.scrollTop = box.scrollHeight;
@@ -859,8 +857,8 @@ function startGame(count, name){
   $('logBox').innerHTML = '';
   renderAll();
   var me = S.game.players[0];
-  log([['log.start1', [count, count-1]]], 'sys');
-  log([['log.start2', [colorName(me.color)]]], 'sys');
+  log(function(){ return [['log.start1', [count, count-1]]]; }, 'sys');
+  log(function(){ return [['log.start2', [colorName(me.color)]]]; }, 'sys');
   beginTurn();
 }
 
@@ -909,22 +907,25 @@ function doPlay(handIndex, color){
   var res = g.play(pi, handIndex, color);
   if(res.error){ S.busy = false; renderAll(); return; }
 
-  var segs = p.human
-    ? [['log.youPlay', [cardName(res.card)]]]
-    : [['log.play', [p.name, cardName(res.card)]]];
-  if(res.card.kind !== 'normal') segs.push(['log.target', [colorName(res.target)]]);
+  if(res.move) S.lastMoved = res.move.colors;   // 高亮刚移动的龟
 
-  if(res.move){
-    var mv = res.move;
-    segs.push([mv.steps > 0 ? 'log.fwd' : 'log.back',
-      [colorName(res.target), Math.abs(mv.steps), mv.from, mv.to]]);
-    if(mv.carried > 1) segs.push(['log.carry', [mv.carried-1]]);
-    if(mv.to === GOAL_COL) segs.push(['log.goal', []]);
-    S.lastMoved = mv.colors;
-  } else {
-    segs.push(['log.stuck', [colorName(res.target)]]);
-  }
-  log(segs, p.human ? 'me' : 'ai');
+  log(function(){
+    var segs = p.human
+      ? [['log.youPlay', [cardName(res.card)]]]
+      : [['log.play', [p.name, cardName(res.card)]]];
+    if(res.card.kind !== 'normal') segs.push(['log.target', [colorName(res.target)]]);
+
+    if(res.move){
+      var mv = res.move;
+      segs.push([mv.steps > 0 ? 'log.fwd' : 'log.back',
+        [colorName(res.target), Math.abs(mv.steps), mv.from, mv.to]]);
+      if(mv.carried > 1) segs.push(['log.carry', [mv.carried-1]]);
+      if(mv.to === GOAL_COL) segs.push(['log.goal', []]);
+    } else {
+      segs.push(['log.stuck', [colorName(res.target)]]);
+    }
+    return segs;
+  }, p.human ? 'me' : 'ai');
   renderAll();
 
   setTimeout(function(){
@@ -992,9 +993,9 @@ function showEnd(){
   var youWin = w && w.color === me.color;
   renderEnd();
   if(w){
-    log([['log.endWin', [youWin ? T('log.you') : w.name]]], 'win');
+    log(function(){ return [['log.endWin', [youWin ? T('log.you') : w.name]]]; }, 'win');
   } else {
-    log([['log.endDraw', []]], 'win');
+    log(function(){ return [['log.endDraw', []]]; }, 'win');
   }
   $('endVeil').classList.add('show');
 }
